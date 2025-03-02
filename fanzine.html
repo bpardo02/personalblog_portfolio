@@ -44,15 +44,11 @@
       href="assets/vendor/glightbox/css/glightbox.min.css"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf_viewer.min.css"
-      integrity="sha512-3RmdRrL3AYc82NkZyJY3Id9029bY37R6LtgNQkNRdZm+eI0sVjV/J5IF9QsC8VDUheqJ9pxCBQc8ts6wiOXIOg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+
     <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" />
     <link href="assets/css/main.css" rel="stylesheet" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   </head>
 
   <body class="index-page">
@@ -85,12 +81,19 @@
       </div>
     </header>
     <main>
-      <iframe
-        src="https://mozilla.github.io/pdf.js/web/viewer.html?file=https://tu-sitio.com/archivo.pdf"
-        width="100%"
-        height="600px"
-      >
-      </iframe>
+      <div class="container mt-4">
+        <h1 class="mb-3 text-center"> Mala Vista Social Club n° 1</h1>
+
+        <div class="d-flex justify-content-center">
+            <canvas id="pdfCanvas" class="border w-100" style="max-width: 800px;"></canvas>
+        </div>
+
+        <div class="d-flex justify-content-center align-items-center mt-3">
+            <button id="prevPage" class="btn btn-primary btn-lg me-2">⬅️</button>
+            <span class="fs-5">Página <span id="pageNum">1</span> de <span id="pageCount"></span></span>
+            <button id="nextPage" class="btn btn-primary btn-lg ms-2">➡️</button>
+        </div>
+    </div
     </main>
     <footer id="footer" class="footer light-background">
       <div class="container">
@@ -121,6 +124,53 @@
     <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
     <!-- Main JS File -->
+    <script>
+      const url = "https://liminalnavegante.cl/issu_fanzine.pdf"; // Ruta del PDF
+      let pdfDoc = null,
+        pageNum = 1,
+        pageCount = 0,
+        scale = 1.5,
+        canvas = document.getElementById("pdfCanvas"),
+        ctx = canvas.getContext("2d");
+
+      function renderPage(num) {
+        pdfDoc.getPage(num).then((page) => {
+          const viewport = page.getViewport({ scale });
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport,
+          };
+          page.render(renderContext);
+
+          document.getElementById("pageNum").textContent = num;
+        });
+      }
+
+      pdfjsLib.getDocument(url).promise.then((pdf) => {
+        pdfDoc = pdf;
+        pageCount = pdf.numPages;
+        document.getElementById("pageCount").textContent = pageCount;
+        renderPage(pageNum);
+      });
+
+      document.getElementById("prevPage").addEventListener("click", () => {
+        if (pageNum > 1) {
+          pageNum--;
+          renderPage(pageNum);
+        }
+      });
+
+      document.getElementById("nextPage").addEventListener("click", () => {
+        if (pageNum < pageCount) {
+          pageNum++;
+          renderPage(pageNum);
+        }
+      });
+    </script>
+
     <script src="assets/js/main.js"></script>
   </body>
 </html>
